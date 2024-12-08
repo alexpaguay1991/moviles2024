@@ -21,81 +21,166 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
-    // Validación simple
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Las contraseñas no coinciden'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
       return;
     }
 
-    final response = await http.post(
-      Uri.parse('http://localhost:3000/api/auth/register'), // Cambia la URL al endpoint de tu API
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'name': name,
-        'email': email,
-        'username': username,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/api/auth/register'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'name': name,
+          'email': email,
+          'username': username,
+          'password': password,
+        }),
+      );
 
-    // Imprimir la respuesta
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    if (response.statusCode == 201) {  // Cambié el estado a 201 para una creación exitosa
-      // Registro exitoso
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Registro exitoso'),
-      ));
-      // Redirigir al login o a la pantalla principal
-    } else {
-      // Error en el registro
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error al registrar usuario'),
-      ));
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registro exitoso')),
+        );
+        _nameController.clear();
+        _emailController.clear();
+        _usernameController.clear();
+        _passwordController.clear();
+        _confirmPasswordController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al registrar usuario')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de conexión: $e')),
+      );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Registro')),
-      body: Padding(
+      backgroundColor: Colors.green[50],
+      appBar: AppBar(
+        title: Text('Registro'),
+        backgroundColor: Colors.green[700],
+      ),
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            SizedBox(height: 20),
+            Text(
+              'REGISTRO',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.green[800],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            ClipOval(
+              child: Image.network(
+                'https://cdn-icons-png.freepik.com/256/11507/11507943.png?semt=ais_hybrid',
+                height: 150,
+                width: 150,
+                fit: BoxFit.cover, // Ajusta la imagen dentro del círculo
+              ),
+            ),
+            SizedBox(height: 20),
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Nombre completo'),
+              decoration: InputDecoration(
+                labelText: 'Nombre completo',
+                filled: true,
+                fillColor: Colors.green[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                prefixIcon: Icon(Icons.person, color: Colors.green[800]),
+              ),
             ),
+            SizedBox(height: 20),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Correo electrónico'),
+              decoration: InputDecoration(
+                labelText: 'Correo electrónico',
+                filled: true,
+                fillColor: Colors.green[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                prefixIcon: Icon(Icons.email, color: Colors.green[800]),
+              ),
               keyboardType: TextInputType.emailAddress,
             ),
+            SizedBox(height: 20),
             TextField(
               controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              decoration: InputDecoration(
+                labelText: 'Username',
+                filled: true,
+                fillColor: Colors.green[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                prefixIcon: Icon(Icons.account_circle, color: Colors.green[800]),
+              ),
             ),
+            SizedBox(height: 20),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
-            ),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: InputDecoration(labelText: 'Confirmar contraseña'),
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                filled: true,
+                fillColor: Colors.green[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                prefixIcon: Icon(Icons.lock, color: Colors.green[800]),
+              ),
               obscureText: true,
             ),
             SizedBox(height: 20),
+            TextField(
+              controller: _confirmPasswordController,
+              decoration: InputDecoration(
+                labelText: 'Confirmar contraseña',
+                filled: true,
+                fillColor: Colors.green[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                prefixIcon: Icon(Icons.lock, color: Colors.green[800]),
+              ),
+              obscureText: true,
+            ),
+            SizedBox(height: 30),
             ElevatedButton(
               onPressed: register,
-              child: Text('Registrarse'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green[700],
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                'Registrar',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),

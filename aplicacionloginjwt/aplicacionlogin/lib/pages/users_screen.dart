@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart'; // Asegúrate de importar SharedPreferences
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UsersScreen extends StatefulWidget {
   @override
@@ -10,15 +10,13 @@ class UsersScreen extends StatefulWidget {
 
 class _UsersScreenState extends State<UsersScreen> {
   List users = [];
-  String userName = ''; // Variable para almacenar el nombre del usuario
+  String userName = '';
 
-  // Método para obtener los usuarios de la API
   Future<void> getUsers() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token'); // Obtiene el token JWT de SharedPreferences
+    final token = prefs.getString('jwt_token');
 
     if (token == null) {
-      // Si no hay token, muestra un mensaje y no hace la solicitud
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('No estás autenticado'),
       ));
@@ -26,9 +24,9 @@ class _UsersScreenState extends State<UsersScreen> {
     }
 
     final response = await http.get(
-      Uri.parse('http://localhost:3000/api/users'), // Cambia la URL al endpoint de tu API
+      Uri.parse('http://localhost:3000/api/users'),
       headers: {
-        'Authorization': 'Bearer $token', // Agrega el token JWT al encabezado de la solicitud
+        'Authorization': 'Bearer $token',
       },
     );
 
@@ -43,44 +41,125 @@ class _UsersScreenState extends State<UsersScreen> {
     }
   }
 
-  // Método para obtener el nombre del usuario desde SharedPreferences
   Future<void> getUserName() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = prefs.getString('userName') ?? 'Usuario'; // Si no existe, poner 'Usuario' por defecto
+      userName = prefs.getString('userName') ?? 'Usuario';
     });
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Elimina todos los datos almacenados
+    Navigator.pushReplacementNamed(context, '/login'); // Regresa al login
   }
 
   @override
   void initState() {
     super.initState();
-    getUserName(); // Llamar a la función para obtener el nombre del usuario
-    getUsers(); // Llamar a la función para obtener los usuarios
+    getUserName();
+    getUsers();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Usuarios')),
+      backgroundColor: Colors.green[50],
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Mostrar el mensaje de bienvenida al usuario
+          SizedBox(height: 40),
           Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              'Bienvenido, $userName',  // Aquí se muestra el nombre del usuario
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'Bienvenido, $userName',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.green[800],
+              ),
             ),
           ),
+          SizedBox(height: 10),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'Lista de usuarios registrados:',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.green[700],
+              ),
+            ),
+          ),
+          SizedBox(height: 10),
           Expanded(
-            child: ListView.builder(
+            child: users.isNotEmpty
+                ? ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(users[index]['username']),
-                  subtitle: Text('ID: ${users[index]['id']}'),
+                return Card(
+                  margin: EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
+                  color: Colors.green[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.green[300],
+                      child: Text(
+                        users[index]['username'][0].toUpperCase(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      users[index]['username'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[800],
+                      ),
+                    ),
+                    subtitle: Text(
+                      'ID: ${users[index]['id']}',
+                      style: TextStyle(color: Colors.green[700]),
+                    ),
+                  ),
                 );
               },
+            )
+                : Center(
+              child: Text(
+                'No se encontraron usuarios.',
+                style: TextStyle(
+                  color: Colors.green[700],
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          Center( // Esto centra el botón
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton.icon(
+                onPressed: logout,
+                icon: Icon(Icons.logout),
+                label: Text('Cerrar sesión'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.red),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  padding: MaterialStateProperty.all(
+                    EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],

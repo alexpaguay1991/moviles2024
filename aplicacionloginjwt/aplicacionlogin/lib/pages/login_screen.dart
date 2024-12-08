@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:3000/api/auth/login'), // Cambia la URL al endpoint de tu API
+        Uri.parse('http://localhost:3000/api/auth/login'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -32,67 +32,131 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final token = data['token'];  // Asegúrate de que 'token' sea correcto según tu API
-        final userName = username;  // Ajusta 'username' si es necesario, dependiendo de la respuesta de tu API
-
-        // Almacena el token JWT y el nombre del usuario en SharedPreferences
+        final token = data['token'];
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('jwt_token', token);  // Almacena el token JWT
-        await prefs.setString('userName', userName);  // Almacena el nombre del usuario
-
-        // Redirigir a la pantalla de usuario después del login exitoso
+        await prefs.setString('jwt_token', token);
+        await prefs.setString('userName', username);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => UsersScreen()),  // Redirige a la pantalla de usuarios
+          MaterialPageRoute(builder: (context) => UsersScreen()),
         );
       } else {
-        // Error al hacer login
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Usuario o contraseña incorrectos'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Usuario o contraseña incorrectos')),
+        );
       }
     } catch (e) {
-      // Captura cualquier error en la solicitud HTTP
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error de conexión: $e'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de conexión: $e')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: login,
-              child: Text('Iniciar sesión'),
-            ),
-            SizedBox(height: 20),
-            // Agregar el botón de redirección a la pantalla de registro
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
-                );
-              },
-              child: Text('¿No tienes cuenta? Regístrate aquí'),
-            ),
-          ],
+      backgroundColor: Colors.green[50],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.green[200],
+                child: ClipOval(
+                  child: Image.network(
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsVFSqbF7n79uSZNX7yYJeBmBeL4HgeiKudA&s',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            (loadingProgress.expectedTotalBytes ?? 1)
+                            : null,
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.error, color: Colors.red);
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'LOGIN',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[800],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 30),
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  filled: true,
+                  fillColor: Colors.green[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  prefixIcon: Icon(Icons.person, color: Colors.green[800]),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  filled: true,
+                  fillColor: Colors.green[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  prefixIcon: Icon(Icons.lock, color: Colors.green[800]),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[700],
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  'Iniciar sesión',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  );
+                },
+                child: Text(
+                  '¿No tienes cuenta? Regístrate aquí',
+                  style: TextStyle(color: Colors.green[800]),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
