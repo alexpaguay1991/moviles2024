@@ -51,7 +51,7 @@ class _UsersScreenState extends State<UsersScreen> {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // Elimina todos los datos almacenados
-    Navigator.pushReplacementNamed(context, '/login'); // Regresa al login
+    Navigator.pushReplacementNamed(context, '/'); // Regresa al login utilizando la ruta '/'
   }
 
   @override
